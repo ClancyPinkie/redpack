@@ -1,0 +1,23 @@
+#side-menu {
+    background-color: lightgrey;
+    display: block;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 250px;
+    transition: transform 200ms ease-in;
+    transform: translateX(calc(-24px + 100%));
+}
+
+#side-menu:hover {
+    transform: translateX(0px);
+}
+
+#side-menu-inner {
+    display: block;
+    height: 100%;
+    width: calc(-24px + 100%);
+    transform: translateX(24px);
+    background-color: red;
+}
