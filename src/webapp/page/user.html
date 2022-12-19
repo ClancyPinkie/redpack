@@ -30,9 +30,7 @@
     html,body{height: 100%;margin: 0}
 
     a{TEXT-DECORATION:none}
-    /*.el-aside ::-webkit-scrollbar{*/
-    /*    display: none;*/
-    /*}*/
+
 
     .right {
         /*float: left;*/
@@ -246,32 +244,7 @@
         el:"#app2",
 
         methods:{
-            // tableChange(name){
-            //     const _this = this;
-            //     switch (name) {
-            //         default :_this.brand.tablename = "tb_brand";Utils.$emit('demo');break;
-            //         case 'tb_brand':_this.brand.tablename = "tb_brand";Utils.$emit('demo');break;
-            //         case 'tb_brandsec':_this.brand.tablename = "tb_brandsec";Utils.$emit('demo');break;
-            //     }
-            // },
 
-            // selectALL() {
-            //     //无法在axios使用this，所以在axios外定义了一个
-            //     var _this = this;
-            //     num = 1;
-            //     // console.log("aabb"+_this.brand.tablename);
-            //     //页面加载完后发送异步请求，获取数据
-            //     axios({
-            //         method:"post",
-            //         url:"http://localhost:8081/brand-case/selectByPageAndCondition?currentPage="+this.currentPage+"&pageSize="+this.pageSize,
-            //         data:_this.brand
-            //     }).then(resp =>{
-            //         //设置表格数据
-            //         _this.tableData = resp.data.rows; // {rows:[],totalCount:100}
-            //         //设置总记录数
-            //         _this.totalCount = resp.data.totalCount;
-            //     })
-            // },
 
             handleOpen(key, keyPath) {
                 console.log(key, keyPath);
@@ -323,48 +296,13 @@
 
         mounted(){
 
-            // let that = this;
-            // Utils.$on('demo', function () {
-            //     // console.log(msg);
-            //     that.selectALL(); //这里就是调用你的方法
-            // })
-
             this.selectALL();
 
-            // //无法在axios使用this，所以在axios外定义了一个
-            // var _this = this;
-            //
-            // //页面加载完后发送异步请求，获取数据
-            // axios({
-            //     method:"get",
-            //     url:"http://localhost:8081/brand-case/selectAllServlet"
-            // }).then(function (response) {
-            //     _this.tableData = response.data;
-            // })
         },
 
 
 
         methods: {
-
-            // tableChange(name){
-            //     const _this = this;
-            //     axios({
-            //         method:"post",
-            //         url:"http://localhost:8081/brand-case/tableChange",
-            //         data:_this.brand
-            //     }).then(function (resp) {
-            //         if(resp.data == "success"){
-            //             // 重新查询数据
-            //             _this.selectALL();
-            //             // 弹出消息提示
-            //             _this.$message({
-            //                 message: '切换成功',
-            //                 type: 'success'
-            //             });
-            //         }
-            //     })
-            // },
 
             selectALL() {
                 //无法在axios使用this，所以在axios外定义了一个
@@ -385,22 +323,6 @@
                 })
             },
 
-            // selectALLSec() {
-            //     //无法在axios使用this，所以在axios外定义了一个
-            //     var _this = this;
-            //     num = 2;
-            //     //页面加载完后发送异步请求，获取数据
-            //     axios({
-            //         method:"get",
-            //         url:"http://localhost:8081/brand-case/brand/selectAllSec",
-            //         data:_this.brandSec
-            //     }).then(resp =>{
-            //         //设置表格数据
-            //         _this.tableData = resp.data.rowsSec; // {rows:[],totalCount:100}
-            //         //设置总记录数
-            //         _this.totalCount = resp.data.totalCountSec;
-            //     })
-            // },
 
             tableRowClassName({row, rowIndex}) {
                 if (rowIndex === 1) {
