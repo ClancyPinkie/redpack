@@ -2,6 +2,7 @@ package com.redpack.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.redpack.common.R;
 import com.redpack.entity.User;
 import com.redpack.service.UserService;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -46,7 +48,7 @@ public class UserController {
 
         //3、如果没有查询到则返回登录失败结果
         if(u == null){
-            return R.error("登录失败");
+            return R.error("账户不存在");
         }
 
         //4、密码比对，如果不一致则返回登录失败结果
@@ -62,6 +64,16 @@ public class UserController {
         //6、登录成功，将员工id存入Session并返回登录成功结果
         request.getSession().setAttribute("user",u.getId());
         return R.success(u);
+    }
+
+    /**
+     * 用户登出
+     * @param request
+     */
+    @ApiOperation("用户登出")
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request){
+        request.getSession().removeAttribute("user");
     }
 
     /**
@@ -89,9 +101,36 @@ public class UserController {
         }
 
         //如果不冲突注册成功，对数据库insert
+        user.setStatus(1);
         userService.save(user);
 
         return R.success("注册成功");
+    }
+
+    /**
+     * 展示用户的所有数据
+     * @param page
+     * @param pageSize
+     * @param name
+     * @return
+     */
+    @ApiOperation("用户分页")
+    @GetMapping("/page")
+    public R<Page> page(int page, int pageSize, String name){
+        log.info("page = {},pageSize = {},name = {}" ,page,pageSize,name);
+
+        //构造分页构造器
+        Page pageInfo = new Page(page,pageSize);
+
+        //构造条件构造器
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotEmpty(name),User::getName,name);
+        queryWrapper.orderByDesc(User::getUpdateTime);
+
+        //执行查询
+        userService.page(pageInfo,queryWrapper);
+
+        return R.success(pageInfo);
     }
 
     /**
