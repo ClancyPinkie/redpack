@@ -116,7 +116,7 @@ public class UserController {
      */
     @ApiOperation("用户分页")
     @GetMapping("/page")
-    public R<Page> page(int page, int pageSize, String name){
+    public R<Page> page(Integer page, Integer pageSize, String name){
         log.info("page = {},pageSize = {},name = {}" ,page,pageSize,name);
 
         //构造分页构造器

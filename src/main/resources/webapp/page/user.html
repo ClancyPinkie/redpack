@@ -34,6 +34,7 @@
 
     .right {
         /*float: left;*/
+        position: relative;
         width: 100%;
         margin-left: 20px;
     }
@@ -42,29 +43,21 @@
 <div id="app" class="right">
 
     <!--搜索表单-->
-    <el-form :inline="true" :model="brand" class="demo-form-inline">
+    <el-form :inline="true" :model="searchUser" class="demo-form-inline" clearable>
+
+        <el-form-item label="人员姓名">
+            <el-input v-model="searchUser.name" placeholder="班级"></el-input>
+        </el-form-item>
 
         <el-form-item label="当前状态">
-            <el-select v-model="brand.status" placeholder="当前状态">
-                <el-option label="正常"></el-option>
+            <el-select v-model="searchUser.status" placeholder="当前状态">
+                <el-option label="正常" value="1"></el-option>
                 <el-option label="已删除" value="0"></el-option>
             </el-select>
         </el-form-item>
 
-        <el-form-item label="班级">
-            <el-input v-model="brand.companyName" placeholder="班级"></el-input>
-        </el-form-item>
-
-        <el-form-item label="学生姓名">
-            <el-input v-model="brand.brandName" placeholder="学生姓名"></el-input>
-        </el-form-item>
-
-        <el-form-item label="年龄">
-            <el-input v-model="brand.ordered" placeholder="年龄区间 (小的值)"></el-input>
-        </el-form-item>
-
-        <el-form-item>
-            <el-input v-model="brand.ordered2" placeholder="年龄区间 (大的值)"></el-input>
+        <el-form-item label="更新时间">
+            <el-input v-model="searchUser.updateTime" placeholder="班级"></el-input>
         </el-form-item>
 
         <el-form-item>
@@ -77,45 +70,28 @@
     <el-row>
 
         <el-button type="danger" plain @click="deleteByIds">批量删除</el-button>
-        <el-button type="primary" plain @click="dialogVisible = true">新增</el-button>
+<!--        <el-button type="primary" plain @click="dialogVisible = true">新增</el-button>-->
 
     </el-row>
     <!--添加数据对话框表单-->
-    <el-dialog
-            title="添加学生信息"
-            :visible.sync="dialogVisible"
-            width="30%"
-    >
+<!--    <el-dialog-->
+<!--            title="添加学生信息"-->
+<!--            :visible.sync="dialogVisible"-->
+<!--            width="30%"-->
+<!--    >-->
 
-        <el-form ref="form" :model="brandSec" label-width="80px">
-            <el-form-item label="学生姓名">
-                <el-input v-model="brandSec.brandName"></el-input>
-            </el-form-item>
+<!--        <el-form ref="form" :model="brandSec" label-width="80px">-->
+<!--            <el-form-item label="学生姓名">-->
+<!--                <el-input v-model="brandSec.brandName"></el-input>-->
+<!--            </el-form-item>-->
 
-            <el-form-item label="性别">
-                <el-input v-model="brandSec.companyName"></el-input>
-            </el-form-item>
+<!--            <el-form-item>-->
+<!--                <el-button type="primary" plain @click="addBrand">提交</el-button>-->
+<!--                <el-button @click="dialogVisible = false">取消</el-button>-->
+<!--            </el-form-item>-->
+<!--        </el-form>-->
 
-            <el-form-item label="年龄">
-                <el-input v-model="brandSec.ordered"></el-input>
-            </el-form-item>
-
-            <el-form-item label="班级">
-                <el-input v-model="brandSec.status"
-                ></el-input>
-            </el-form-item>
-
-            <el-form-item label="备注">
-                <el-input type="textarea" v-model="brandSec.description"></el-input>
-            </el-form-item>
-
-            <el-form-item>
-                <el-button type="primary" plain @click="addBrand">提交</el-button>
-                <el-button @click="dialogVisible = false">取消</el-button>
-            </el-form-item>
-        </el-form>
-
-    </el-dialog>
+<!--    </el-dialog>-->
 
 
     <!--表格-->
@@ -153,9 +129,15 @@
                     label="更新时间">
             </el-table-column>
             <el-table-column
+                    prop="addTime"
+                    align="center"
+                    label="加入时间">
+            </el-table-column>
+            <el-table-column
                     prop="status"
                     align="center"
-                    label="用户状态">
+                    label="用户状态"
+                    :formatter="statusRecognize">
             </el-table-column>
 
             <el-table-column
@@ -222,74 +204,46 @@
 
 </div>
 
-
-
+<script src="../js/axios-0.18.0.js"></script>
+<script src="../api/member.js"></script>
+<script src="../js/request.js"></script>
 <script>
 
-
-    new Vue({
-        el:"#app2",
-
-        methods:{
-
-
-            handleOpen(key, keyPath) {
-                console.log(key, keyPath);
-            },
-            handleClose(key, keyPath) {
-                console.log(key, keyPath);
-            }
-
-
-        },
-
-        data() {
-            return {
-                activeIndex: 2,
-                activeIndex2: 2,
-
-                pageSize:5,
-                currentPage:1,
-
-                totalCount:100,
-
-                // table_name: 1,
-
-                rows:[],
-
-                brand: {
-                    status: '',
-                    brandName: '',
-                    companyName: '',
-                    id:"",
-                    ordered:"",
-                    ordered2:"",
-                    description:""
-                },
-            };
-        }
-    })
-</script>
-
-
-
-<script>
-
-
-
-    new Vue({
+    var app = new Vue({
 
         el: "#app",
 
-        mounted(){
+        created(){
+            this.init()
+            if(localStorage.getItem('user') != null){
+                //获取当前登录员工的账号，并赋值给模型数据user
+                this.user = JSON.parse(localStorage.getItem('user')).name
+                console.log(this.user)
+            }
+        },
 
-            this.selectALL();
+        mounted(){
 
         },
 
-
-
         methods: {
+            async init () {
+                var _this = this;
+                const params = {
+                    page: _this.page,
+                    pageSize: _this.pageSize,
+                    name: _this.input ? _this.input : undefined
+                }
+                await getMemberList(params).then(res => {
+                    if (String(res.code) === '1') {
+                        console.log(res)
+                        _this.tableUser = res.data.records
+                        _this.counts = res.data.total
+                    }
+                }).catch(err => {
+                    this.$message.error('请求出错了：' + err)
+                })
+            },
 
             selectALL() {
                 //无法在axios内使用this，所以在axios外定义了一个
@@ -300,8 +254,8 @@
                     method:"get",
                     url:"/user/page",
                     data:_this.tableUser
-                }).then(resp =>{
-                    console.log(resp)
+                }).then(res =>{
+                    console.log(res)
                 })
             },
 
@@ -323,6 +277,14 @@
             // 查询方法
             onSubmit() {
                 this.selectALL();
+            },
+
+            statusRecognize(row){
+                if (row.status===0){
+                    return "已停用";
+                }else if(row.status===1){
+                    return "正常";
+                }
             },
 
             // 添加数据
@@ -488,7 +450,11 @@
 
                 activeIndex: '1',
                 activeIndex2:'2',
-                pageSize:5,
+
+                page:1,
+                pageSize:2,
+                input:'',
+                counts:0,
 
                 totalCount:100,
 
@@ -508,6 +474,21 @@
                     id:'',
                     name:'',
                     password:'',
+                    status:'',
+                    addTime:'',
+                    updateTime:''
+                },
+
+                searchUser:{
+                    name:'',
+                    status:'',
+                    updateTime:''
+                },
+
+                addUser:{
+                    id:'',
+                    name:'',
+                    password:'111',
                     status:'',
                     addTime:'',
                     updateTime:''

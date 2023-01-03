@@ -34,7 +34,7 @@ public class LoginFilter implements Filter {
         String[] urls = new String[]{
                 "/user/login",
                 "/user/register",
-                "/webapp/page/login.html"
+                "/webapp/**"
         };
 
         //判断本次请求是否需要放行
@@ -46,8 +46,6 @@ public class LoginFilter implements Filter {
             filterChain.doFilter(request,response);
             return;
         }
-
-
 
         //4、判断登陆状态，如果已经登陆则保存当前id
         if (request.getSession().getAttribute("user") != null){

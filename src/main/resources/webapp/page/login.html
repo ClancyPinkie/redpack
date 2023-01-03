@@ -98,31 +98,31 @@
 
     <script>
         var a = new Vue({
-            el:"#login",
+            el: "#login",
 
-            data(){
-                return{
-                    user:{
+            data() {
+                return {
+                    user: {
                         name: '',
                         password: ''
                     }
                 }
             },
 
-            methods:{
+            methods: {
 
-                userLogin(){
+                userLogin() {
                     var _this = this;
                     axios({
-                        url:'/user/login',
-                        method:'post',
-                        data:a.user
-                    }).then(res=>{
+                        url: '/user/login',
+                        method: 'post',
+                        data: a.user
+                    }).then(res => {
                         console.log(res)
-                        if (String(res.data.code)==='1'){
-                            localStorage.setItem('user',JSON.stringify(res.data.data))
-                            window.location.href='../index.html';
-                        }else{
+                        if (String(res.data.code) === '1') {
+                            localStorage.setItem('user', JSON.stringify(res.data.data))
+                            window.location.href = '../index.html';
+                        } else {
                             _this.$message.error(res.data.msg);
                         }
                     })
