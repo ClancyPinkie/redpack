@@ -152,31 +152,20 @@
                             :visible.sync="addVisible"
                             width="30%"
                     >
-                        <el-form ref="form" :model="brand" label-width="80px">
-                            <el-form-item label="学生姓名">
-                                <el-input v-model="brandThd.brandName"></el-input>
+                        <el-form ref="form" :model="updateUser" label-width="80px" >
+                            <el-form-item label="用户姓名">
+                                <el-input v-model="updateUser.name"></el-input>
                             </el-form-item>
 
-                            <el-form-item label="性别">
-                                <el-input v-model="brandThd.companyName"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="年龄">
-                                <el-input v-model="brandThd.ordered"></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="班级">
-                                <el-input v-model="brandThd.status"
-                                ></el-input>
-                            </el-form-item>
-
-                            <el-form-item label="备注">
-                                <!--                                <el-input type="textarea" v-model="brand.description"></el-input>-->
-                                <el-input v-model="brandThd.description"></el-input>
+                            <el-form-item label="用户状态">
+                                <el-radio-group v-model="updateUser.status">
+                                    <el-radio :label="1">正常</el-radio>
+                                    <el-radio :label="0">已停用</el-radio>
+                                </el-radio-group>
                             </el-form-item>
 
                             <el-form-item>
-                                <el-button type="primary" @click="updatebrand">提交</el-button>
+                                <el-button type="primary" @click="updateUsers">提交</el-button>
                                 <el-button @click="addVisible = false">取消</el-button>
                             </el-form-item>
                         </el-form>
@@ -199,7 +188,7 @@
             :page-sizes="[5, 10, 15, 20]"
             :page-size="5"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="totalCount">
+            :total="counts">
     </el-pagination>
 
 </div>
@@ -217,7 +206,7 @@
             this.init()
             if(localStorage.getItem('user') != null){
                 //获取当前登录员工的账号，并赋值给模型数据user
-                this.user = JSON.parse(localStorage.getItem('user')).name
+                this.username = JSON.parse(localStorage.getItem('user')).name
                 console.log(this.user)
             }
         },
@@ -236,7 +225,6 @@
                 }
                 await getMemberList(params).then(res => {
                     if (String(res.code) === '1') {
-                        console.log(res)
                         _this.tableUser = res.data.records
                         _this.counts = res.data.total
                     }
@@ -245,19 +233,19 @@
                 })
             },
 
-            selectALL() {
-                //无法在axios内使用this，所以在axios外定义了一个
-                var _this = this;
-
-                //页面加载完后发送异步请求，获取数据
-                axios({
-                    method:"get",
-                    url:"/user/page",
-                    data:_this.tableUser
-                }).then(res =>{
-                    console.log(res)
-                })
-            },
+            // selectALL() {
+            //     //无法在axios内使用this，所以在axios外定义了一个
+            //     var _this = this;
+            //
+            //     //页面加载完后发送异步请求，获取数据
+            //     axios({
+            //         method:"get",
+            //         url:"/user/page",
+            //         data:_this.tableUser
+            //     }).then(res =>{
+            //         console.log(res)
+            //     })
+            // },
 
 
             tableRowClassName({row, rowIndex}) {
@@ -276,9 +264,9 @@
 
             // 查询方法
             onSubmit() {
-                this.selectALL();
+                this.init();
             },
-
+            //status过滤器
             statusRecognize(row){
                 if (row.status===0){
                     return "已停用";
@@ -288,55 +276,58 @@
             },
 
             // 添加数据
-            addBrand(){
-                //console.log(this.brand);
-                //发送ajax请求，添加数据
-                var _this = this;
-                axios({
-                    method: "post",
-                    url:"http://localhost:8081/brand-case/addServlet",
-                    data: _this.brandSec
-                }).then(function (response) {
-                    if (response.data == "success"){
-                        _this.selectALL();
-                        //关闭窗口
-                        _this.dialogVisible = false;
+            // addBrand(){
+            //     //console.log(this.brand);
+            //     //发送ajax请求，添加数据
+            //     var _this = this;
+            //     axios({
+            //         method: "post",
+            //         url:"http://localhost:8081/brand-case/addServlet",
+            //         data: _this.brandSec
+            //     }).then(function (response) {
+            //         if (response.data == "success"){
+            //             _this.selectALL();
+            //             //关闭窗口
+            //             _this.dialogVisible = false;
+            //
+            //             _this.$message({
+            //                 message:'添加成功!',
+            //                 type:'success'
+            //             });
+            //         }else {
+            //             _this.$message.error('添加失败');
+            //         }
+            //     })
+            // },
 
-                        _this.$message({
-                            message:'添加成功!',
-                            type:'success'
-                        });
-                    }else {
-                        _this.$message.error('添加失败');
-                    }
-                })
-            },
-
+            //获取页面信息
             updateById(index, row) {
                 var _this = this;
-                _this.brand.id = row.id;
+                _this.updateUser.id = row.id;
+                _this.updateUser.name = row.name;
+                _this.updateUser.status = row.status;
                 _this.addVisible = true;
             },
             //修改数据
-            updatebrand(){
+            updateUsers(){
                 var _this = this;
                 //发送ajax异步请求，添加数据
                 axios({
                     method: "post",
-                    url: "http://localhost:8081/brand-case/updateServlet",
-                    data: _this.brandThd
-                }).then(function (resp) {
-                    if (resp.data == "success") {
+                    url: "/user/update",
+                    data: _this.updateUser
+                }).then(function (res) {
+                    if (res.data.code === 1) {
                         //关闭窗口
                         _this.addVisible = false;
                         //查询一次
-                        _this.selectALL();
+                        _this.init();
                         _this.$message({
                             message: '修改成功',
                             type: 'success'
                         });
                     } else {
-                        _this.$message.error('修改数据失败');
+                        _this.$message.error('修改失败');
                     }
                 })
             },
@@ -452,9 +443,10 @@
                 activeIndex2:'2',
 
                 page:1,
-                pageSize:2,
+                pageSize:5,
                 input:'',
                 counts:0,
+                username:'',
 
                 totalCount:100,
 
@@ -492,6 +484,12 @@
                     status:'',
                     addTime:'',
                     updateTime:''
+                },
+
+                updateUser:{
+                    id:'',
+                    name:'',
+                    status:'',
                 },
 
                 // 品牌模型数据

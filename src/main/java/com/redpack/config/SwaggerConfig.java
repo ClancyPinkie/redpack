@@ -12,11 +12,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-/**
- * @author 尹稳健~
- * @version 1.0
- * @time 2022/9/6
- */
+
 @Configuration
 @EnableOpenApi
 public class SwaggerConfig {
@@ -49,8 +45,8 @@ public class SwaggerConfig {
                 // 设置标题
                 .title("红包Swagger3接口文档")
                 // 描述
-                .description("他为什么报错了  我maven呢？ 重启下试试  他怎么又好了 什么情况 哎 算了 就这样吧 ")
-                .contact(new Contact("yinwenjian", null, null))
+                .description("他为什么报错了  我maven呢？ 重启下试试  怎么打不开了？ 怎么又打开了？ 哎 算了 就这样吧 ")
+                .contact(new Contact("北宅", null, null))
                 // 作者信息
                 .version("v1.0")
                 // 版本

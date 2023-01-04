@@ -42,7 +42,6 @@
       margin-bottom: 20px;
       border: 0;
       padding: 10px;
-      border-bottom: 1px solid rgb(128, 125, 125);
       font-size: 15px;
       outline: none;
     }
@@ -70,31 +69,76 @@
       color: #abc1ee;
     }
   </style>
+  <script src="../js/vue.js"></script>
 </head>
 
 <body>
 
-<script src="../js/vue.js"></script>
+
 <script src="../element-ui/lib/index.js"></script>
 <link rel="stylesheet" href="../element-ui/lib/theme-chalk/index.css">
 
 <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
 
-  <div class="container">
+  <div  class="container">
     <div class="login-wrapper">
       <div class="header">用户注册</div>
-      <div class="form-wrapper">
-        <input type="text" name="username" placeholder="用户名" class="input-item">
-        <input type="password" name="password" placeholder="密码" class="input-item">
-        <input type="password" name="password" placeholder="确认密码" class="input-item">
-        <button class="btn">注册</button>
+      <div id="btnreg" class="form-wrapper">
+        <el-input type="text" v-model="user.name" placeholder="用户名" class="input-item" ></el-input>
+        <el-input type="password" v-model="user.password" placeholder="密码" class="input-item" show-password></el-input>
+        <el-input type="password" v-model="re_pwd" placeholder="确认密码" class="input-item" show-password></el-input>
+        <button class="btn" onclick="abc.functionOfRegister();">注册</button>
+
       </div>
 
     </div>
   </div>
 
+<script>
+
+  var abc = new Vue({
+    el: "#btnreg",
+
+    //因为method没有s导致报错：没找到方法，耗费了几十分钟
+    methods: {
+      functionOfRegister() {
+        var _this = this;
+        if (this.user.password === this.re_pwd) {
+          axios({
+            url: '/user/register',
+            method: 'post',
+            data: _this.user
+          }).then(res => {
+            if (res.data.code === 1) {
+              _this.$message.success(res.data.data);
+              setTimeout(function (){
+                window.location.href = 'login.html'
+              },2000)
+
+            } else {
+              _this.$message.error(res.data.msg);
+            }
+          })
+        } else {
+          this.$message.error("密码不一致,请重新输入!")
+        }
+      }
+
+    },
+
+    data() {
+      return {
+        user: {
+          name: '',
+          password: ''
+        },
+        re_pwd: '',
+      }
+    }
+
+  })
+</script>
+
 </body>
-
-
 
 </html>

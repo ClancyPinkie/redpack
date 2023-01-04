@@ -97,7 +97,7 @@ public class UserController {
 
         //如果冲突则返回注册失败
         if (one != null){
-            return R.error("注册失败");
+            return R.error("账号已存在");
         }
 
         //如果不冲突注册成功，对数据库insert
@@ -139,7 +139,7 @@ public class UserController {
      * @return
      */
     @ApiOperation("设置用户状态")
-    @PostMapping("/status")
+    @GetMapping("/status")
     public R<String> set_status(@RequestBody User user){
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getId,user.getId());
@@ -158,14 +158,19 @@ public class UserController {
 
     /**
      * 员工信息修改
-     * @param user
+     * 报错一次：前端传过来的值即将消失；解决方案为把Get方式改为Post
+     * @param updateUser
      * @return
      */
     @ApiOperation("员工修改")
-    @GetMapping("/update")
-    public R<String> update(@RequestBody User user){
-        userService.updateById(user);
-        return null;
+    @PostMapping("/update")
+    public R<String> update(@RequestBody User updateUser){
+        log.info("update正常运作,值为:"+updateUser);
+        if (updateUser == null){
+            return R.error("修改失败!");
+        }
+        userService.updateById(updateUser);
+        return R.success("修改成功");
     }
 
     /**
