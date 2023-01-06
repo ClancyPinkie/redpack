@@ -1,6 +1,7 @@
 package com.redpack.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.redpack.common.R;
@@ -16,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -108,7 +110,7 @@ public class UserController {
     }
 
     /**
-     * 展示用户的所有数据
+     * 分页
      * @param page
      * @param pageSize
      * @param name
@@ -131,6 +133,21 @@ public class UserController {
         userService.page(pageInfo,queryWrapper);
 
         return R.success(pageInfo);
+    }
+
+    @ApiOperation("条件查询")
+    @PostMapping("/list")
+    public R<List<User>> search(@RequestBody User searchUser){
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+
+        //四种模糊查询
+        queryWrapper.like("name",searchUser.getName())
+                .like(searchUser.getStatus()!=null,"status",searchUser.getStatus());
+
+        List<User> list = userService.list(queryWrapper);
+//        list.forEach(System.out::println);
+        return R.success(list);
     }
 
     /**
@@ -180,7 +197,7 @@ public class UserController {
      */
     @ApiOperation("员工删除")
     @DeleteMapping("/delete")
-    public R<String> delete(Long id){
+    public R<String> delete(@RequestBody Long id){
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getId,id);
         User user = userService.getOne(queryWrapper);
@@ -188,6 +205,26 @@ public class UserController {
             return R.error("删除失败");
         }
         userService.removeById(id);
+        return R.success("删除成功");
+    }
+
+    /**
+     * 根据id数组删除多名员工
+     * @param ids
+     * @return
+     */
+    @ApiOperation("员工批量删除")
+    @DeleteMapping("/deletes")
+    public R<String> delete(@RequestBody Long[] ids){
+        for (Long id : ids){
+            LambdaQueryWrapper<User> idswrapper = new LambdaQueryWrapper<>();
+            idswrapper.eq(User::getId,id);
+            User user = userService.getOne(idswrapper);
+            if (user == null){
+                return R.error("删除失败");
+            }
+            userService.removeById(id);
+        }
         return R.success("删除成功");
     }
 }

@@ -34,31 +34,40 @@
 
     .right {
         /*float: left;*/
-        position: relative;
+        position: fixed;
         width: 100%;
-        margin-left: 20px;
+        margin-left: 2px;
     }
 </style>
 
 <div id="app" class="right">
 
     <!--搜索表单-->
-    <el-form :inline="true" :model="searchUser" class="demo-form-inline" clearable>
+    <el-form :inline="true" :model="searchUser" class="demo-form-inline" >
 
         <el-form-item label="人员姓名">
-            <el-input v-model="searchUser.name" placeholder="班级"></el-input>
+            <el-input v-model="searchUser.name" placeholder="人员姓名" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="当前状态">
-            <el-select v-model="searchUser.status" placeholder="当前状态">
+            <el-select v-model="searchUser.status" placeholder="当前状态" clearable>
                 <el-option label="正常" value="1"></el-option>
                 <el-option label="已删除" value="0"></el-option>
             </el-select>
         </el-form-item>
 
-        <el-form-item label="更新时间">
-            <el-input v-model="searchUser.updateTime" placeholder="班级"></el-input>
-        </el-form-item>
+<!--        <el-form-item label="更新时间">-->
+<!--            <el-date-picker v-model="searchUser.updateTime" type="date" placeholder="选择日期"-->
+<!--                            value-format="yyyy-MM-dd" clearable>-->
+<!--            </el-date-picker>-->
+<!--        </el-form-item>-->
+
+<!--        <el-form-item label="加入时间">-->
+<!--            <el-date-picker v-model="searchUser.addTime" type="date" placeholder="选择日期"-->
+<!--                            value-format="yyyy-MM-dd" clearable>-->
+<!--            </el-date-picker>-->
+<!--        </el-form-item>-->
+
 
         <el-form-item>
             <el-button type="primary" @click="onSubmit">查询</el-button>
@@ -98,7 +107,7 @@
     <template>
         <el-table
                 :data="tableUser"
-                style="width: 80%"
+                style="width: 100%"
                 :row-class-name="tableRowClassName"
                 @selection-change="handleSelectionChange"
         >
@@ -126,24 +135,24 @@
             <el-table-column
                     prop="updateTime"
                     align="center"
-                    label="更新时间">
+                    label="更新时间" sortable>
             </el-table-column>
             <el-table-column
                     prop="addTime"
                     align="center"
-                    label="加入时间">
+                    label="加入时间" sortable>
             </el-table-column>
             <el-table-column
                     prop="status"
                     align="center"
                     label="用户状态"
-                    :formatter="statusRecognize">
+                    :formatter="statusRecognize" sortable>
             </el-table-column>
 
             <el-table-column
                     align="center"
                     label="操作">
-                <template slot-scope="scope">
+                <template slot-scope="scope" >
                     <el-button type="primary"  @click="updateById(scope.$index, scope.row)">修改</el-button>
                     <el-button type="danger"  @click="deleteById(scope.$index, scope.row)">删除</el-button>
                     <!--修改数据对话框表单-->
@@ -175,6 +184,10 @@
 
             </el-table-column>
 
+            <el-table-column align="left">
+                <el-button type="text">下发红包</el-button>
+            </el-table-column>
+
         </el-table>
     </template>
 
@@ -184,7 +197,7 @@
     <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="currentPage"
+            :current-page="page"
             :page-sizes="[5, 10, 15, 20]"
             :page-size="5"
             layout="total, sizes, prev, pager, next, jumper"
@@ -207,7 +220,6 @@
             if(localStorage.getItem('user') != null){
                 //获取当前登录员工的账号，并赋值给模型数据user
                 this.username = JSON.parse(localStorage.getItem('user')).name
-                console.log(this.user)
             }
         },
 
@@ -264,7 +276,18 @@
 
             // 查询方法
             onSubmit() {
-                this.init();
+                var _this = this;
+                axios({
+                    method: "post",
+                    url: "/user/list",
+                    data: _this.searchUser
+                }).then(function (res) {
+                    if (res.data.code === 1) {
+                        _this.tableUser = res.data.data;
+                    } else {
+                        _this.$message.error("查询失败!");
+                    }
+                })
             },
             //status过滤器
             statusRecognize(row){
@@ -335,32 +358,38 @@
             //删除数据
             deleteById(index, row) {
                 var _this = this;
-                this.$confirm('此操作将删除该数据, 是否继续?', '提示', {
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
                     // 发送ajax请求，添加数据
                     axios({
-                        method: "get",
-                        url: "http://localhost:8081/brand-case/deleteServlet",
+                        method: "delete",
+                        url: "/user/delete",
                         data: row.id
                     }).then(function (resp) {
-                        if (resp.data == "success") {
+                        if (resp.data.code === 1) {
                             // 重新查询数据
-                            _this.selectALL();
+                            _this.init();
                             // 弹出消息提示
                             _this.$message({
-                                message: '删除成功',
+                                message: resp.data.msg,
                                 type: 'success'
                             });
+                        } else{
+                            _this.$message({
+                                message: resp.data.msg,
+                                type: 'error'
+                            })
+
                         }
                     })
                 }).catch(() => {
-                    //用户点击取消按钮
+                    //点击取消后
                     this.$message({
                         type: 'info',
-                        message: '已取消删除'
+                        message: '已取消'
                     });
                 });
             },
@@ -369,6 +398,7 @@
             //批量删除的方法
             deleteByIds(){
                 //1.创建id数组
+                //遍历多选框数组，塞入新数组中
                 for (let i = 0; i < this.multipleSelection.length; i++) {
                     let selectionElement = this.multipleSelection[i];
                     this.selectedIds[i] = selectionElement.id;
@@ -384,21 +414,21 @@
 
                     //发送ajax请求
                     axios({
-                        method: "post",
-                        url: "http://localhost:8081/brand-case/deleteByIdsServlet",
+                        method: "delete",
+                        url: "/user/deletes",
                         data: _this.selectedIds
                     }).then(function (resp) {
-                        if (resp.data == "success") {
+                        if (resp.data.code === 1) {
                             //关闭窗口
                             _this.addVisible = false;
                             //查询一次
-                            _this.selectALL();
+                            _this.init();
                             _this.$message({
-                                message: '删除成功',
+                                message: resp.data.msg,
                                 type: 'success'
                             });
                         } else {
-                            _this.$message.error('删除失败');
+                            _this.$message.error(resp.data.msg);
                         }
                     });
                 }).catch(() => {
@@ -414,11 +444,11 @@
             //分页
             handleSizeChange(val) {
                 this.pageSize  = val;
-                this.selectALL();
+                this.init();
             },
             handleCurrentChange(val) {
-                this.currentPage  = val;
-                this.selectALL();
+                this.page  = val;
+                this.init();
             },
 
             handleSelect(key, keyPath) {
@@ -474,6 +504,7 @@
                 searchUser:{
                     name:'',
                     status:'',
+                    addTime:'',
                     updateTime:''
                 },
 

@@ -110,7 +110,7 @@
             data: _this.user
           }).then(res => {
             if (res.data.code === 1) {
-              _this.$message.success(res.data.data);
+              _this.$message.success(res.data.msg);
               setTimeout(function (){
                 window.location.href = 'login.html'
               },2000)

@@ -15,7 +15,7 @@ public class User implements Serializable {
     private Long id;
     private String name;
     private String password;
-    private int status;
+    private Integer status;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime addTime;
