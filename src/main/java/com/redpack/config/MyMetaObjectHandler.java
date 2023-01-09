@@ -6,6 +6,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 //不单是用户注册需要录入修改时间，其他的实体类也有，且很多，为了减少重复操作故设立自动处理器。
 /**
@@ -22,8 +23,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         log.info("公共字段自动填充[insert]: "+metaObject.toString());
-        metaObject.setValue("addTime", LocalDateTime.now());
-        metaObject.setValue("updateTime", LocalDateTime.now());
+        log.info("公共字段自动填充[getgettername]: "+ Arrays.toString(metaObject.getGetterNames()).indexOf("sendTime"));
+        if (!Arrays.toString(metaObject.getGetterNames()).contains("sendTime")){
+            metaObject.setValue("addTime", LocalDateTime.now());
+            metaObject.setValue("updateTime", LocalDateTime.now());
+        }else{
+            metaObject.setValue("sendTime", LocalDateTime.now());
+        }
 //        metaObject.setValue("createUser",BaseContext.getThreadLocalId());
 //        metaObject.setValue("updateUser",BaseContext.getThreadLocalId());
     }

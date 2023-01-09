@@ -43,9 +43,9 @@
 <div id="app" class="right">
 
     <!--搜索表单-->
-    <el-form :inline="true" :model="searchUser" class="demo-form-inline" >
+    <el-form :inline="true" :model="searchUser" class="demo-form-inline" :rules="rules" ref="searchUser">
 
-        <el-form-item label="人员姓名">
+        <el-form-item label="人员姓名" prop="name">
             <el-input v-model="searchUser.name" placeholder="人员姓名" clearable></el-input>
         </el-form-item>
 
@@ -70,7 +70,7 @@
 
 
         <el-form-item>
-            <el-button type="primary" @click="onSubmit">查询</el-button>
+            <el-button type="primary" @click="onSubmit('searchUser')">查询</el-button>
         </el-form-item>
     </el-form>
 
@@ -159,6 +159,7 @@
                     <el-dialog
                             title="修改"
                             :visible.sync="addVisible"
+                            :append-to-body="true"
                             width="30%"
                     >
                         <el-form ref="form" :model="updateUser" label-width="80px" >
@@ -275,17 +276,23 @@
             },
 
             // 查询方法
-            onSubmit() {
+            onSubmit(searchUser) {
                 var _this = this;
-                axios({
-                    method: "post",
-                    url: "/user/list",
-                    data: _this.searchUser
-                }).then(function (res) {
-                    if (res.data.code === 1) {
-                        _this.tableUser = res.data.data;
-                    } else {
-                        _this.$message.error("查询失败!");
+                this.$refs[searchUser].validate((valid) =>{
+                    if (valid){
+                        axios({
+                            method: "post",
+                            url: "/user/list",
+                            data: _this.searchUser
+                        }).then(function (res) {
+                            if (res.data.code === 1) {
+                                _this.tableUser = res.data.data;
+                            } else {
+                                _this.$message.error("查询失败!");
+                            }
+                        })
+                    }else{
+                        _this.$message.error("查询失败!")
                     }
                 })
             },
@@ -464,13 +471,13 @@
             console.log(key, keyPath);
         },
 
+
+
         data() {
             return {
-                cup:1,
-                toc:1,
-
-                activeIndex: '1',
-                activeIndex2:'2',
+                rules:{
+                    name: {pattern:/^[a-zA-Z]+$/,message:'只允许输入字母',trigger:'change'}
+                },
 
                 page:1,
                 pageSize:5,
@@ -481,16 +488,9 @@
                 totalCount:100,
 
                 addVisible: false,
-                // 当前页码
-                currentPage: 1,
 
                 // 添加数据对话框是否展示的标记
-                dialogVisible: false,
-
-                rows:[],
-                rowsSec:[],
-
-                // tablename:"tb_brand",
+                // dialogVisible: false,
 
                 tableUser:{
                     id:'',
@@ -523,67 +523,14 @@
                     status:'',
                 },
 
-                // 品牌模型数据
-                brand: {
-                    status: '',
-                    brandName: '',
-                    companyName: '',
-                    id:"",
-                    ordered:"",
-                    ordered2:"",
-                    description:""
-                },
-
-                // 品牌模型数据
-                brandSec: {
-                    status: '',
-                    brandName: '',
-                    companyName: '',
-                    id:"",
-                    ordered:"",
-                    ordered2:"",
-                    description:""
-                },
-
-                // 品牌模型数据
-                brandThd: {
-                    status: '',
-                    brandName: '',
-                    companyName: '',
-                    id:"",
-                    ordered:"",
-                    ordered2:"",
-                    description:""
-                },
-
                 //批量删除中被选中的id数组
                 selectedIds:[],
                 // 复选框选中数据集合
                 multipleSelection: [],
-                // 表格数据
-                tableData: [{
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }, {
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }, {
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }, {
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }]
+
             }
         }
+
     })
 
 </script>

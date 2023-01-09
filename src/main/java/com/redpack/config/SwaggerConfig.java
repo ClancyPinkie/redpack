@@ -48,7 +48,7 @@ public class SwaggerConfig {
                 .description("他为什么报错了  我maven呢？ 重启下试试  怎么打不开了？ 怎么又打开了？ 哎 算了 就这样吧 ")
                 .contact(new Contact("北宅", null, null))
                 // 作者信息
-                .version("v1.0")
+                .version("v2.0")
                 // 版本
                 .build();
     }

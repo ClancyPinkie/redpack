@@ -2,7 +2,6 @@ package com.redpack.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.redpack.common.R;
 import com.redpack.entity.User;
@@ -16,9 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @Slf4j
@@ -135,42 +133,23 @@ public class UserController {
         return R.success(pageInfo);
     }
 
-    @ApiOperation("条件查询")
+    /**
+     * 员工查询
+     * @param searchUser
+     * @return
+     */
+    @ApiOperation("条件查询员工")
     @PostMapping("/list")
     public R<List<User>> search(@RequestBody User searchUser){
 
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
 
-        //四种模糊查询
-        queryWrapper.like("name",searchUser.getName())
-                .like(searchUser.getStatus()!=null,"status",searchUser.getStatus());
+        //模糊查询
+        queryWrapper.like(User::getName,searchUser.getName())
+                .like(searchUser.getStatus()!=null,User::getStatus,searchUser.getStatus());
 
         List<User> list = userService.list(queryWrapper);
-//        list.forEach(System.out::println);
         return R.success(list);
-    }
-
-    /**
-     * 设置用户状态
-     * @param user
-     * @return
-     */
-    @ApiOperation("设置用户状态")
-    @GetMapping("/status")
-    public R<String> set_status(@RequestBody User user){
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getId,user.getId());
-        User one = userService.getOne(queryWrapper);
-        if (one.getStatus() == 1){
-            one.setStatus(0);
-            userService.updateById(one);
-            return R.success("已禁用");
-        }else{
-            one.setStatus(1);
-            userService.updateById(one);
-            return R.success("已启用");
-        }
-//        return R.error("状态设置失败");
     }
 
     /**
@@ -182,7 +161,6 @@ public class UserController {
     @ApiOperation("员工修改")
     @PostMapping("/update")
     public R<String> update(@RequestBody User updateUser){
-        log.info("update正常运作,值为:"+updateUser);
         if (updateUser == null){
             return R.error("修改失败!");
         }
@@ -226,5 +204,12 @@ public class UserController {
             userService.removeById(id);
         }
         return R.success("删除成功");
+    }
+
+    @ApiOperation("发送红包方法")
+    @PostMapping("/send")
+    public R<String> sendRedpack(String sender,String recipient){
+        //发送红包
+        return null;
     }
 }

@@ -223,86 +223,8 @@
 
         el: "#app",
 
-        mounted(){
-
-            this.selectALL();
-
-        },
-
-
-
-        handleOpen(key, keyPath) {
-            console.log(key, keyPath);
-        },
-        handleClose(key, keyPath) {
-            console.log(key, keyPath);
-        },
-
         data() {
             return {
-                cup:1,
-                toc:1,
-
-                activeIndex: '1',
-                activeIndex2:'2',
-                pageSize:5,
-
-                totalCount:100,
-
-                addVisible: false,
-                // 当前页码
-                currentPage: 1,
-
-                // 添加数据对话框是否展示的标记
-                dialogVisible: false,
-
-                rows:[],
-                rowsSec:[],
-
-                // tablename:"tb_brand",
-
-                tableUser:{
-                    id:'',
-                    name:'',
-                    password:'',
-                    status:'',
-                    addTime:'',
-                    updateTime:''
-                },
-
-                // 品牌模型数据
-                brand: {
-                    status: '',
-                    brandName: '',
-                    companyName: '',
-                    id:"",
-                    ordered:"",
-                    ordered2:"",
-                    description:""
-                },
-
-                // 品牌模型数据
-                brandSec: {
-                    status: '',
-                    brandName: '',
-                    companyName: '',
-                    id:"",
-                    ordered:"",
-                    ordered2:"",
-                    description:""
-                },
-
-                // 品牌模型数据
-                brandThd: {
-                    status: '',
-                    brandName: '',
-                    companyName: '',
-                    id:"",
-                    ordered:"",
-                    ordered2:"",
-                    description:""
-                },
-
                 iframePage:{
                     user:'page/user.html',
                     record:'page/redpack_record.html',
@@ -310,32 +232,6 @@
 
                 iframeUrl : 'page/user.html',
 
-                //批量删除中被选中的id数组
-                selectedIds:[],
-                // 复选框选中数据集合
-                multipleSelection: [],
-                // 表格数据
-                tableData: [{
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }, {
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }, {
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }, {
-                    brandName: '华为',
-                    companyName: '华为科技有限公司',
-                    ordered: '100',
-                    status: "1"
-                }]
             }
         }
     })
