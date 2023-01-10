@@ -23,7 +23,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         log.info("公共字段自动填充[insert]: "+metaObject.toString());
-        log.info("公共字段自动填充[getgettername]: "+ Arrays.toString(metaObject.getGetterNames()).indexOf("sendTime"));
         if (!Arrays.toString(metaObject.getGetterNames()).contains("sendTime")){
             metaObject.setValue("addTime", LocalDateTime.now());
             metaObject.setValue("updateTime", LocalDateTime.now());

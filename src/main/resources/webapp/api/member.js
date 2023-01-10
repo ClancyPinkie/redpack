@@ -5,3 +5,10 @@ function getMemberList (params) {
         params
     })
 }
+function sendRedpack (params){
+    return $axios({
+        method:'post',
+        url: '/record/send',
+        params
+    })
+}

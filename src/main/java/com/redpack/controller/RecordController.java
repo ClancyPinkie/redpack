@@ -121,6 +121,12 @@ public class RecordController {
         return R.success("删除成功");
     }
 
+    /**
+     * 发送红包
+     * @param sender
+     * @param recipient
+     * @return
+     */
     @ApiOperation("发送红包方法(即新增)")
     @PostMapping("/send")
     public R<String> sendRedpack(String sender,String recipient){

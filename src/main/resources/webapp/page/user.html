@@ -186,7 +186,10 @@
             </el-table-column>
 
             <el-table-column align="left">
-                <el-button type="text">下发红包</el-button>
+                <template slot-scope="scope">
+                    <el-button type="text" @click="sendRedpack(scope.$index,scope.row)">下发红包</el-button>
+                </template>
+
             </el-table-column>
 
         </el-table>
@@ -446,6 +449,23 @@
                     });
                 });
 
+            },
+
+            sendRedpack(index,row){
+                console.log("row: "+row.name);
+                const params = {
+                    sender: this.username,
+                    recipient: row.name,
+                }
+                sendRedpack(params).then(res => {
+                    console.log(res)
+                    if (res.data.code===1){
+                        this.$message.success(res.data.msg)
+                    }else{
+                        this.$message.warning(res.data.msg)
+                    }
+
+                })
             },
 
             //分页
