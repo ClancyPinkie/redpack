@@ -117,6 +117,8 @@ public class RecordController {
                 return R.error("删除失败");
             }
             recordService.removeById(id);
+        }if(ids.length==0){
+            return R.error("未选择记录");
         }
         return R.success("删除成功");
     }

@@ -202,6 +202,8 @@ public class UserController {
                 return R.error("删除失败");
             }
             userService.removeById(id);
+        }if(ids.length==0){
+            return R.error("未选择员工");
         }
         return R.success("删除成功");
     }

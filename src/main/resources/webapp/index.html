@@ -92,7 +92,8 @@
 
     <!--表格-->
     <!--看上去好像有两个被弃用了，实际上他们俩是取消滚轮的唯一功臣-->
-    <iframe :src="iframeUrl"
+    <iframe id="iframeapp"
+            :src="iframeUrl"
             width="100%"
             height="auto"
             frameborder="0"
@@ -116,11 +117,11 @@
                     text-color="#fff"
             >
 
-                <el-menu-item index="1" onclick="change_page('user')">
+                <el-menu-item id="user" index="1" onclick="change_page('user')">
                     <i class="el-icon-s-custom"></i>
                     <span slot="title" onclick="change_page('user')">人员管理</span>
                 </el-menu-item>
-                <el-menu-item index="2" onclick="change_page('record')">
+                <el-menu-item id="record" index="2" onclick="change_page('record')">
                     <i class="el-icon-s-data"></i>
                     <span slot="title" onclick="change_page('record')">红包记录</span>
                 </el-menu-item>
@@ -143,8 +144,15 @@
 
     function change_page(item) {
         switch (item) {
-            case 'user':app.iframeUrl = 'page/user.html';break;
-            case 'record':app.iframeUrl = 'page/redpack_record.html';break;
+            case 'user':app.iframeUrl = 'page/user.html';
+                document.getElementById('iframeapp').onclick = function () {
+                    document.getElementById('iframe1').src = 'page/user.html';
+                };
+                break;
+            case 'record':app.iframeUrl = 'page/redpack_record.html';
+                document.getElementById('iframeapp').onclick = function () {
+                    document.getElementById('iframe1').src = 'page/redpack_record.html';
+                };break;
         }
     }
 

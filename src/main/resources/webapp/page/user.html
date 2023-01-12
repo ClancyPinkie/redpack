@@ -428,6 +428,7 @@
                         url: "/user/deletes",
                         data: _this.selectedIds
                     }).then(function (resp) {
+                        console.log(resp)
                         if (resp.data.code === 1) {
                             //关闭窗口
                             _this.addVisible = false;
@@ -452,17 +453,17 @@
             },
 
             sendRedpack(index,row){
-                console.log("row: "+row.name);
+
                 const params = {
                     sender: this.username,
                     recipient: row.name,
                 }
                 sendRedpack(params).then(res => {
                     console.log(res)
-                    if (res.data.code===1){
-                        this.$message.success(res.data.msg)
+                    if (res.code===1){
+                        this.$message.success(res.msg)
                     }else{
-                        this.$message.warning(res.data.msg)
+                        this.$message.warning(res.msg)
                     }
 
                 })
