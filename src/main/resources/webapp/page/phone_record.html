@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
+    <title>红包后台管理</title>
+</head>
+<style>
+
+    /* 小屏幕手机端 */
+    @media (min-width: 0px) and (max-width:768px) {
+        .container{
+            width: 100%;
+            /*height: 100%;*/
+        }
+    }
+
+    /* 中等屏幕（桌面显示器，大于等于 992px） */
+    @media (min-width: 768px) and (max-width:992px){
+        .container{
+            width: 100%;
+            /*height: 100%;*/
+        }
+    }
+
+    /* 大屏幕（大桌面显示器，大于等于 1200px） */
+    @media (min-width: 992px) {
+        .container{
+            width: 100%;
+            /*height: 100%;*/
+        }
+    }
+</style>
+<body>
+
+<script src="../js/vue.js"></script>
+<script src="../element-ui/lib/index.js"></script>
+<link rel="stylesheet" href="../element-ui/lib/theme-chalk/index.css">
+<script src="../js/axios-0.18.0.js"></script>
+<script src="../js/request.js"></script>
+<div id="phone" class="container" style="overflow: auto; overflow-x: hidden;">
+
+    <!--搜索表单-->
+    <el-form :inline="true" :model="searchRecord" class="demo-form-inline" :rules="rules" ref="searchRecord">
+
+        <el-form-item label="发送人" prop="sender">
+            <el-input v-model="searchRecord.sender" placeholder="发送人名称" clearable></el-input>
+        </el-form-item>
+
+        <el-form-item label="接收人" prop="recipient">
+            <el-input v-model="searchRecord.recipient" placeholder="接收人名称" clearable></el-input>
+        </el-form-item>
+
+        <div>
+            <el-button type="text" @click="onSubmit('searchRecord')">查询</el-button>
+            <el-button type="text" style="color: red" @click="deleteByIds">批量删除</el-button>
+        </div>
+    </el-form>
+
+    <!--表格-->
+        <el-table
+                :data="tableRecord"
+                style="width: 100%;overflow: scroll;"
+                :row-class-name="tableRowClassName"
+                @selection-change="handleSelectionChange"
+        >
+            <el-table-column
+                    type="selection"
+                    >
+            </el-table-column>
+
+
+            <el-table-column
+                    prop="sender"
+                    label="发送人"
+                    align="center"
+            >
+            </el-table-column>
+            <el-table-column
+                    prop="recipient"
+                    label="接收人"
+                    align="center"
+            >
+            </el-table-column>
+
+            <el-table-column
+                    prop="sendTime"
+                    align="center"
+                    label="发送时间" sortable>
+            </el-table-column>
+
+            <el-table-column
+                    align="center"
+                    label="操作">
+                <template slot-scope="scope" >
+                    <el-button type="text"
+                               @click="updateById(scope.$index, scope.row)">修改</el-button>
+                    <div>
+                        <el-button type="text" style="color: red"
+                                   @click="deleteById(scope.$index, scope.row)">删除</el-button>
+                    </div>
+
+                    <el-dialog
+                            title="修改"
+                            :visible.sync="addVisible"
+                            :append-to-body="true"
+                            width="70%"
+                    >
+                        <el-form ref="form" :model="updateRecord" label-width="80px" >
+                            <el-form-item label="发送人">
+                                <el-input v-model="updateRecord.sender"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="接收人">
+                                <el-input v-model="updateRecord.recipient"></el-input>
+                            </el-form-item>
+
+                            <el-form-item label="用户状态">
+                                <el-radio-group v-model="updateRecord.status">
+                                    <el-radio :label="1">正常</el-radio>
+                                    <el-radio :label="0">已停用</el-radio>
+                                </el-radio-group>
+                            </el-form-item>
+
+                            <el-form-item>
+                                <el-button type="primary" @click="updateRecords">提交</el-button>
+                                <el-button @click="addVisible = false">取消</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-dialog>
+                </template>
+
+            </el-table-column>
+
+        </el-table>
+
+
+    <!--分页工具条-->
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="page"
+            :page-sizes="[5, 10, 15, 20]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="counts">
+    </el-pagination>
+</div>
+
+<script>
+    function getMemberList (params) {
+        return $axios({
+            url: '/record/page',
+            method: 'get',
+            params
+        })
+    }
+    var app = new Vue({
+
+        el: "#phone",
+
+        created(){
+            this.init()
+            if(localStorage.getItem('record') != null){
+                //获取当前登录员工的账号，并赋值给模型数据user
+                this.recordname = JSON.parse(localStorage.getItem('record')).name
+            }
+        },
+
+        mounted(){
+
+        },
+
+        methods: {
+            async init () {
+                var _this = this;
+                const params = {
+                    page: _this.page,
+                    pageSize: _this.pageSize,
+                    name: _this.input ? _this.input : undefined
+                }
+                await getMemberList(params).then(res => {
+                    if (String(res.code) === '1') {
+                        _this.tableRecord = res.data.records
+                        _this.counts = res.data.total
+                    }
+                }).catch(err => {
+                    this.$message.error('请求出错了：' + err)
+                })
+            },
+
+
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex === 1) {
+                    return 'warning-row';
+                } else if (rowIndex === 3) {
+                    return 'success-row';
+                }
+                return '';
+            },
+
+            // 复选框选中后执行的方法
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+            },
+
+            // 查询方法
+            onSubmit(searchRecord) {
+                var _this = this;
+                this.$refs[searchRecord].validate((valid) =>{
+                    if (valid){
+                        axios({
+                            method: "post",
+                            url: "/record/list",
+                            data: _this.searchRecord
+                        }).then(function (res) {
+                            if (res.data.code === 1) {
+                                _this.tableRecord = res.data.data;
+                            } else {
+                                _this.$message.error("查询失败!");
+                            }
+                        })
+                    }else{
+                        _this.$message.error("查询失败!")
+                    }
+                })
+            },
+
+
+            //获取页面信息
+            updateById(index, row) {
+                var _this = this;
+                _this.updateRecord.id = row.id;
+                _this.updateRecord.sender = row.sender;
+                _this.updateRecord.recipient = row.recipient;
+                _this.updateRecord.status = row.status;
+                _this.addVisible = true;
+            },
+            //修改数据
+            updateRecords(){
+                var _this = this;
+                //发送ajax异步请求，添加数据
+                axios({
+                    method: "post",
+                    url: "/record/update",
+                    data: _this.updateRecord
+                }).then(function (res) {
+                    if (res.data.code === 1) {
+                        //关闭窗口
+                        _this.addVisible = false;
+                        //查询一次
+                        _this.init();
+                        _this.$message({
+                            message: '修改成功',
+                            type: 'success'
+                        });
+                    } else {
+                        _this.$message.error('修改失败');
+                    }
+                })
+            },
+
+            //删除数据
+            deleteById(index, row) {
+                var _this = this;
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    // 发送ajax请求，添加数据
+                    axios({
+                        method: "delete",
+                        url: "/record/delete",
+                        data: row.id
+                    }).then(function (resp) {
+                        if (resp.data.code === 1) {
+                            // 重新查询数据
+                            _this.init();
+                            // 弹出消息提示
+                            _this.$message({
+                                message: resp.data.msg,
+                                type: 'success'
+                            });
+                        } else{
+                            _this.$message({
+                                message: resp.data.msg,
+                                type: 'error'
+                            })
+
+                        }
+                    })
+                }).catch(() => {
+                    //点击取消后
+                    this.$message({
+                        type: 'info',
+                        message: '已取消'
+                    });
+                });
+            },
+
+
+            //批量删除的方法
+            deleteByIds(){
+                //1.创建id数组
+                //遍历多选框数组，塞入新数组中
+                for (let i = 0; i < this.multipleSelection.length; i++) {
+                    let selectionElement = this.multipleSelection[i];
+                    this.selectedIds[i] = selectionElement.id;
+                }
+                var _this = this;
+
+                _this.$confirm('该操作不可逆，是否确定要删除已选择的数据?', '警告', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    //确定
+
+                    //发送ajax请求
+                    axios({
+                        method: "delete",
+                        url: "/record/deletes",
+                        data: _this.selectedIds
+                    }).then(function (resp) {
+                        if (resp.data.code === 1) {
+                            //关闭窗口
+                            _this.addVisible = false;
+                            //查询一次
+                            _this.init();
+                            _this.$message({
+                                message: resp.data.msg,
+                                type: 'success'
+                            });
+                        } else {
+                            _this.$message.error(resp.data.msg);
+                        }
+                    });
+                }).catch(() => {
+                    //取消
+                    _this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+
+            },
+
+            //分页
+            handleSizeChange(val) {
+                this.pageSize  = val;
+                this.init();
+            },
+            handleCurrentChange(val) {
+                this.page  = val;
+                this.init();
+            },
+
+        },
+
+
+
+        data() {
+            return {
+                rules:{
+                    sender: {pattern:/^[a-zA-Z]+$/,message:'只允许输入字母',trigger:'change'},
+                    recipient: {pattern:/^[a-zA-Z]+$/,message:'只允许输入字母',trigger:'change'}
+                },
+
+                page:1,
+                pageSize:10,
+                input:'',
+                counts:0,
+                recordname:'',
+
+                totalCount:100,
+
+                addVisible: false,
+
+                // 添加数据对话框是否展示的标记
+                // dialogVisible: false,
+
+                tableRecord:{
+                    id:'',
+                    sender:'',
+                    recipient:'',
+                    status:'',
+                    sendTime:''
+                },
+
+                searchRecord:{
+                    sender:'',
+                    recipient:'',
+                    status:'',
+                    sendTime:''
+                },
+
+                addUser:{
+                    id:'',
+                    sender:'',
+                    recipient:'',
+                    status:'',
+                    sendTime:''
+                },
+
+                updateRecord:{
+                    sender:'',
+                    recipient:'',
+                    status:''
+                },
+
+                //批量删除中被选中的id数组
+                selectedIds:[],
+                // 复选框选中数据集合
+                multipleSelection: [],
+
+            }
+        }
+
+    })
+
+</script>
+</body>
+</html>

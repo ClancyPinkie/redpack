@@ -43,7 +43,7 @@
 <div id="app" class="right">
 
     <!--搜索表单-->
-    <el-form :inline="true" :model="searchUser" class="demo-form-inline" :rules="rules" ref="searchUser">
+    <el-form :inline="true" :model="searchUser" class="demo-form-inline"  ref="searchUser">
 
         <el-form-item label="人员姓名" prop="name">
             <el-input v-model="searchUser.name" placeholder="人员姓名" clearable></el-input>
@@ -146,7 +146,7 @@
                     prop="status"
                     align="center"
                     label="用户状态"
-                    :formatter="statusRecognize" sortable>
+                    :formatter="statusRecognize" >
             </el-table-column>
 
             <el-table-column
@@ -344,6 +344,10 @@
             //修改数据
             updateUsers(){
                 var _this = this;
+                if (this.updateUser.name===this.username){
+                    this.$message.error('不可以修改自己');
+                    this.addVisible=false;
+                }
                 //发送ajax异步请求，添加数据
                 axios({
                     method: "post",
@@ -373,6 +377,11 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
+                    if (row.name===this.username){
+                    this.$message.error('不可以删除自己');
+                    this.addVisible=false;
+                    return 0;
+                }
                     // 发送ajax请求，添加数据
                     axios({
                         method: "delete",
@@ -412,6 +421,11 @@
                 for (let i = 0; i < this.multipleSelection.length; i++) {
                     let selectionElement = this.multipleSelection[i];
                     this.selectedIds[i] = selectionElement.id;
+                    console.log(this.selectedIds[i]);
+                }if (this.multipleSelection.length === 0){
+                    for (const selectedIdsKey in this.selectedIds) {
+                        this.selectedIds[selectedIdsKey] = 0;
+                    }
                 }
                 var _this = this;
 
@@ -421,14 +435,14 @@
                     type: 'warning'
                 }).then(() => {
                     //确定
-
+                    console.log(this.selectedIds)
                     //发送ajax请求
                     axios({
                         method: "delete",
                         url: "/user/deletes",
                         data: _this.selectedIds
                     }).then(function (resp) {
-                        console.log(resp)
+
                         if (resp.data.code === 1) {
                             //关闭窗口
                             _this.addVisible = false;
@@ -496,9 +510,9 @@
 
         data() {
             return {
-                rules:{
-                    name: {pattern:/^[a-zA-Z]+$/,message:'只允许输入字母',trigger:'change'}
-                },
+                // rules:{
+                //     name: {pattern:/^[a-zA-Z]+$/,message:'只允许输入字母',trigger:'change'}
+                // },
 
                 page:1,
                 pageSize:5,

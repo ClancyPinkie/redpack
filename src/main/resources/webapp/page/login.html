@@ -69,6 +69,37 @@
             text-decoration-line: none;
             color: #abc1ee;
         }
+        /* 小屏幕手机端 */
+        @media (min-width: 0px) and (max-width:768px) {
+            .container{
+                width: 100%;
+                /*height: 100%;*/
+            }
+            .login-wrapper{
+                width: 75%;
+                padding: 20px 30px;
+            }
+
+        }
+
+        /* 中等屏幕（桌面显示器，大于等于 992px） */
+        @media (min-width: 768px) and (max-width:992px){
+            .container{
+                width: 100%;
+                /*height: 100%;*/
+            }
+            .login-wrapper{
+                width: 80%;
+            }
+        }
+
+        /* 大屏幕（大桌面显示器，大于等于 1200px） */
+        @media (min-width: 992px) {
+            .container{
+                width: 100%;
+                /*height: 100%;*/
+            }
+        }
     </style>
 </head>
 
@@ -121,7 +152,17 @@
                         console.log(res)
                         if (String(res.data.code) === '1') {
                             localStorage.setItem('user', JSON.stringify(res.data.data))
-                            window.location.href = '../index.html';
+                            const device = navigator.userAgent
+                            if (device.indexOf('iPad') > -1) {
+                                //  ipad
+                                window.location.href = 'phone_record.html';
+                            } else if (device.indexOf('Android') > -1 || device.indexOf('ios') > -1) {
+                                // 手机
+                                window.location.href = 'phone_record.html';
+                            } else {
+                                // 电脑
+                                window.location.href = '../index.html';
+                            }
                         } else {
                             _this.$message.error(res.data.msg);
                         }
@@ -130,6 +171,8 @@
 
             }
         });
+
+
 
     </script>
 

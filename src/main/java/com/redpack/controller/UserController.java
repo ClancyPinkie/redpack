@@ -3,6 +3,7 @@ package com.redpack.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.redpack.common.BaseContext;
 import com.redpack.common.R;
 import com.redpack.entity.User;
 import com.redpack.service.UserService;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 
 @RestController
@@ -197,14 +200,19 @@ public class UserController {
         for (Long id : ids){
             LambdaQueryWrapper<User> idswrapper = new LambdaQueryWrapper<>();
             idswrapper.eq(User::getId,id);
-            User user = userService.getOne(idswrapper);
-            if (user == null){
+            User user = null;
+            try {
+                user = userService.getOne(idswrapper);
+            } catch (Exception e) {
                 return R.error("删除失败");
             }
-            userService.removeById(id);
+            if (Objects.equals(user.getId(), BaseContext.getThreadLocalId())){
+                return R.error("不能删除自己");
+            }
         }if(ids.length==0){
             return R.error("未选择员工");
         }
+        userService.removeByIds(Arrays.asList(ids));
         return R.success("删除成功");
     }
 

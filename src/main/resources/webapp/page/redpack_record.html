@@ -123,12 +123,7 @@
               align="center"
               label="发送时间" sortable>
       </el-table-column>
-      <el-table-column
-              prop="status"
-              align="center"
-              label="用户状态"
-              :formatter="statusRecognize" sortable>
-      </el-table-column>
+
 
       <el-table-column
               align="center"
@@ -150,13 +145,6 @@
 
               <el-form-item label="接收人">
                 <el-input v-model="updateRecord.recipient"></el-input>
-              </el-form-item>
-
-              <el-form-item label="用户状态">
-                <el-radio-group v-model="updateRecord.status">
-                  <el-radio :label="1">正常</el-radio>
-                  <el-radio :label="0">已停用</el-radio>
-                </el-radio-group>
               </el-form-item>
 
               <el-form-item>
@@ -181,7 +169,7 @@
           @current-change="handleCurrentChange"
           :current-page="page"
           :page-sizes="[5, 10, 15, 20]"
-          :page-size="5"
+          :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="counts">
   </el-pagination>
