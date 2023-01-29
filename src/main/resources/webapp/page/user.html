@@ -43,7 +43,9 @@
 <div id="app" class="right">
 
     <!--搜索表单-->
-    <el-form :inline="true" :model="searchUser" class="demo-form-inline"  ref="searchUser">
+<!--    要使得prop正则表达式生效，就需要prop与item的名字对应正确，然后在el-form里加入:rules="rules"-->
+<!--    同时，需要form里有:model存在-->
+    <el-form :inline="true" :rules="rules" :model="searchUser" class="demo-form-inline"  ref="searchUser">
 
         <el-form-item label="人员姓名" prop="name">
             <el-input v-model="searchUser.name" placeholder="人员姓名" clearable></el-input>
@@ -187,7 +189,27 @@
 
             <el-table-column align="left">
                 <template slot-scope="scope">
-                    <el-button type="text" @click="sendRedpack(scope.$index,scope.row)">下发红包</el-button>
+                    <el-button type="text" @click="riseRedpack(scope.$index,scope.row)">下发红包</el-button>
+<!--                    为什么scope变成了最后一个？-->
+<!--                    因为dialog是在你打开时动态创建的，
+                        此时scope已经循环生成完了，点确认按钮是拿不到的，所以你需要点打开时缓存一下scope-->
+                    <el-dialog
+                            title="下发红包"
+                            :visible.sync="redpackVisible"
+                            :append-to-body="true"
+                            width="30%"
+                    >
+                        <el-form ref="redpackForm" label-width="80px" :model="testuser" :rules="rules">
+                            <el-form-item label="金额" prop="money">
+                                <el-input v-model="testuser.money" ></el-input>
+                            </el-form-item>
+
+                            <el-form-item>
+                                <el-button type="primary" @click="sendRedpack(cacheRow.index,cacheRow.row)">提交</el-button>
+                                <el-button @click="clearRedpack">取消</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-dialog>
                 </template>
 
             </el-table-column>
@@ -232,6 +254,7 @@
         },
 
         methods: {
+
             async init () {
                 var _this = this;
                 const params = {
@@ -466,21 +489,50 @@
 
             },
 
+            //发送红包方法
             sendRedpack(index,row){
 
                 const params = {
                     sender: this.username,
                     recipient: row.name,
+                    money: this.testuser.money
                 }
-                sendRedpack(params).then(res => {
-                    console.log(res)
-                    if (res.code===1){
-                        this.$message.success(res.msg)
-                    }else{
-                        this.$message.warning(res.msg)
-                    }
+                this.$refs['redpackForm'].validate((valid)=>{
+                    if(valid && params.sender!==params.recipient){
+                        sendRedpack(params).then(res => {
+                            console.log(res)
+                            if (res.code===1){
+                                this.$message.success(res.msg);
+                                this.testuser.money=null;
+                                this.redpackVisible=false;
+                            }else{
+                                this.$message.error(res.msg)
+                            }
 
+                        })
+                    }else if (params.sender === params.recipient){
+                        this.$message.error("不可以给自己下发红包!")
+                    }else{
+                        this.$message.error("提交失败!")
+                    }
                 })
+
+            },
+
+            //显示红包框
+            riseRedpack(index,row){
+                if (this.username===row.name){
+                    this.$message.error("不可以给自己下发红包");
+                    return null;
+                }
+                this.cacheRow.index=index;
+                this.cacheRow.row=row;
+                this.redpackVisible=true;
+            },
+
+            clearRedpack(){
+                this.redpackVisible=false;
+                this.testuser.money=null;
             },
 
             //分页
@@ -510,20 +562,38 @@
 
         data() {
             return {
-                // rules:{
-                //     name: {pattern:/^[a-zA-Z]+$/,message:'只允许输入字母',trigger:'change'}
-                // },
+                rules:{
+                    name: [
+                        {pattern:/^[a-zA-Z]+$/,message:'只能输入字母',trigger:'change'}
+                    ],
+                    money: [
+                        {pattern:/^[0-9]+$/,message:'只能输入数字',trigger:'change'}
+                    ],
+                },
 
+                cacheRow: {
+                    index:'',
+                    row:''
+                },
+
+                testuser:{
+                    money:'',
+                },
+
+                //页码
                 page:1,
                 pageSize:5,
+                //
                 input:'',
                 counts:0,
                 username:'',
 
+                // money:'',
+
                 totalCount:100,
 
                 addVisible: false,
-
+                redpackVisible: false,
                 // 添加数据对话框是否展示的标记
                 // dialogVisible: false,
 

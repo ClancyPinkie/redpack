@@ -119,6 +119,13 @@
       </el-table-column>
 
       <el-table-column
+              prop="money"
+              label="金额"
+              align="center"
+      >
+      </el-table-column>
+
+      <el-table-column
               prop="sendTime"
               align="center"
               label="发送时间" sortable>
@@ -434,7 +441,8 @@
           sender:'',
           recipient:'',
           status:'',
-          sendTime:''
+          sendTime:'',
+          money:''
         },
 
         searchRecord:{

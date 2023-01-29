@@ -39,7 +39,7 @@
         .input-item {
             display: block;
             width: 100%;
-            margin-bottom: 20px;
+            /*margin-bottom: 20px;*/
             /*border: #2d2d2d;*/
             padding: 10px;
             /*border-bottom: 1px solid rgb(128, 125, 125);*/
@@ -115,11 +115,27 @@
     <div id="login" class="container">
         <div class="login-wrapper">
             <div class="header">红包后台管理</div>
-            <div class="form-wrapper">
-                <el-input type="text" placeholder="用户名" class="input-item" v-model="user.name"></el-input>
-                <el-input type="password" placeholder="密码" class="input-item" v-model="user.password"></el-input>
+            <el-form class="form-wrapper" :model="user" :rules="rules">
+                <el-form-item  prop="name">
+                    <el-input type="text"
+                              placeholder="用户名"
+                              class="input-item"
+                              v-model="user.name"
+                    ></el-input>
+                </el-form-item>
+
+                <el-form-item :rules="[
+                { required: true, message: '请输入密码', trigger: 'change' }
+                ]">
+                    <el-input type="password"
+                              placeholder="密码"
+                              class="input-item"
+                              v-model="user.password"
+                    ></el-input>
+                </el-form-item>
+
                 <button class="btn" onclick="a.userLogin()">登录</button>
-            </div>
+            </el-form>
             <div class="msg">
                 没有账号?
                 <a href="register.html">注册</a>
@@ -133,10 +149,22 @@
 
             data() {
                 return {
+                    rules:{
+                        name:[
+                            { required: true, message: '请输入用户名', trigger: 'change' },
+                            { pattern:/^[a-zA-Z]+$/, message: '只能输入字母', trigger: ['blur', 'change'] }
+                        ],
+                        password:[
+                            { required: true, message: '请输入密码', trigger: 'change' },
+                            { pattern:/^[a-zA-Z0-9]+$/, message: '只能输入字母和数字', trigger: ['blur', 'change'] }
+                        ]
+
+                    },
                     user: {
                         name: 'person',
                         password: '111'
-                    }
+                    },
+
                 }
             },
 

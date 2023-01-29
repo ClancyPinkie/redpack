@@ -14,6 +14,7 @@ public class Record implements Serializable {
     private Long id;
     private String sender;
     private String recipient;
+    private String money;
     private Integer status;
 
     @TableField(fill = FieldFill.INSERT)

@@ -131,11 +131,12 @@ public class RecordController {
      */
     @ApiOperation("发送红包方法(即新增)")
     @PostMapping("/send")
-    public R<String> sendRedpack(String sender,String recipient){
+    public R<String> sendRedpack(String sender,String recipient,String money){
         //新增红包记录
         Record record = new Record();
         record.setSender(sender);
         record.setRecipient(recipient);
+        record.setMoney(money);
         record.setStatus(1);
         recordService.save(record);
         return R.success("发送成功");
