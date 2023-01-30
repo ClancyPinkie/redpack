@@ -43,17 +43,20 @@
     <!--搜索表单-->
     <el-form :inline="true" :model="searchRecord" class="demo-form-inline" :rules="rules" ref="searchRecord">
 
-        <el-form-item label="发送人" prop="sender">
+        <el-form-item label="发送人" prop="sender" >
             <el-input v-model="searchRecord.sender" placeholder="发送人名称" clearable></el-input>
         </el-form-item>
+
+        <el-button type="text" onclick="logout()">退出登录</el-button>
 
         <el-form-item label="接收人" prop="recipient">
             <el-input v-model="searchRecord.recipient" placeholder="接收人名称" clearable></el-input>
         </el-form-item>
 
         <div>
-            <el-button type="text" @click="onSubmit('searchRecord')">查询</el-button>
+            <el-button type="text" @click="onSubmit('searchRecord')" >查询</el-button>
             <el-button type="text" style="color: red" @click="deleteByIds">批量删除</el-button>
+
         </div>
     </el-form>
 
@@ -84,17 +87,16 @@
             </el-table-column>
 
             <el-table-column
-                    prop="sendTime"
+                    prop="money"
                     align="center"
-                    label="发送时间" sortable>
+                    label="金额" sortable>
             </el-table-column>
 
             <el-table-column
                     align="center"
                     label="操作">
                 <template slot-scope="scope" >
-                    <el-button type="text"
-                               @click="updateById(scope.$index, scope.row)">修改</el-button>
+<!--                    <el-button type="text" @click="updateById(scope.$index, scope.row)">修改</el-button>-->
                     <div>
                         <el-button type="text" style="color: red"
                                    @click="deleteById(scope.$index, scope.row)">删除</el-button>
@@ -154,6 +156,13 @@
             method: 'get',
             params
         })
+    }
+    function logout(){
+        localStorage.removeItem('user')
+        axios({
+            url:'/user/logout',
+            method:'post'
+        }).then(window.location.href='login.html')
     }
     var app = new Vue({
 
@@ -385,7 +394,8 @@
                     sender:'',
                     recipient:'',
                     status:'',
-                    sendTime:''
+                    sendTime:'',
+                    money:''
                 },
 
                 searchRecord:{

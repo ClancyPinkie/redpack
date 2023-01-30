@@ -134,8 +134,9 @@
                     ></el-input>
                 </el-form-item>
 
-                <button class="btn" onclick="a.userLogin()">登录</button>
+
             </el-form>
+            <button class="btn" onclick="a.userLogin()">登录</button>
             <div class="msg">
                 没有账号?
                 <a href="register.html">注册</a>
@@ -179,7 +180,8 @@
                     }).then(res => {
                         console.log(res)
                         if (String(res.data.code) === '1') {
-                            localStorage.setItem('user', JSON.stringify(res.data.data))
+                            const idName = {id: res.data.data.id, name: res.data.data.name};
+                            localStorage.setItem('user', JSON.stringify(idName))
                             const device = navigator.userAgent
                             if (device.indexOf('iPad') > -1) {
                                 //  ipad
